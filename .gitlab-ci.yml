@@ -1,0 +1,18 @@
+include:
+  - project: apoidea/ops/gitlab-templates
+    ref: main
+    file: /templates/node/pipeline/deploy.yml
+
+variables:
+  NODE_VERSION: 18
+  PROJECT: ej_media_lab
+  SERVICE: arbor/content-api
+  DEPLOYMENT_SERVICE_NAME: ej-arbor-content-api
+  DEPLOYMENT_COMPONENT_NAME: content-api
+
+coverage:
+  allow_failure: true
+
+sonar:
+  allow_failure: true
+

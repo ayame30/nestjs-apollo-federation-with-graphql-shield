@@ -1,0 +1,7 @@
+.git
+/.*
+node_modules
+dist
+!.npmrc.docker
+!.prettierrc
+/*.log

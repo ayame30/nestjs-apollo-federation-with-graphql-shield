@@ -1,0 +1,582 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+"""AppConfig"""
+type AppConfig
+  @join__type(graph: CONTENT)
+{
+  breakingNewsRootCategoryIds: [ID!]!
+  arborRootCategoryIds: [ID!]!
+  onboardingSurveyCategoryIds: [ID!]!
+  ios: PlatformConfigEntity!
+  android: PlatformConfigEntity!
+  onboardingSurveyCategories: [Category!]!
+  breakingNewsRootCategories: [Category!]!
+  arborRootCategories: [Category!]!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}
+
+type Article
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  title: String!
+  url: String!
+  summary: String!
+  thumbnailMediaId: ID
+  thumbnail: Media
+  publisherId: ID!
+  publisher: Publisher!
+  expiredAt: Timestamp
+  publishedAt: Timestamp
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+}
+
+type ArticleConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [Article!]!
+}
+
+type ArticleGroup
+  @join__type(graph: DISTRIBUTION, key: "id")
+  @join__type(graph: NOTIFICATION, key: "id", extension: true)
+{
+  id: ID!
+  slug: String! @join__field(graph: DISTRIBUTION)
+  shortTitle: String! @join__field(graph: DISTRIBUTION)
+  title: String! @join__field(graph: DISTRIBUTION)
+  summary: String! @join__field(graph: DISTRIBUTION)
+  dataSet: String! @join__field(graph: DISTRIBUTION)
+  isBreakingNews: Boolean! @join__field(graph: DISTRIBUTION)
+  isFeatured: Boolean! @join__field(graph: DISTRIBUTION)
+  thumbnailMediaId: ID @join__field(graph: DISTRIBUTION)
+  thumbnail: Media @join__field(graph: DISTRIBUTION)
+  expiredAt: Timestamp @join__field(graph: DISTRIBUTION)
+  publishedAt: Timestamp @join__field(graph: DISTRIBUTION)
+  createdAt: Timestamp! @join__field(graph: DISTRIBUTION)
+  updatedAt: Timestamp! @join__field(graph: DISTRIBUTION)
+  deletedAt: Timestamp @join__field(graph: DISTRIBUTION)
+  questionCount: Int! @join__field(graph: DISTRIBUTION)
+  maxLayerIndex: Int! @join__field(graph: DISTRIBUTION)
+  categories: [Category!]! @join__field(graph: DISTRIBUTION)
+  publishers: [Publisher!]! @join__field(graph: DISTRIBUTION)
+  references: [ArticleGroupReference!]! @join__field(graph: DISTRIBUTION)
+  qnas(connectionArgs: ConnectionArgs, filters: ArticleGroupQnasFilter): QnaConnection! @join__field(graph: DISTRIBUTION)
+  categoryIds: [ID!]! @join__field(graph: DISTRIBUTION)
+  notifications(connectionArgs: ConnectionArgs, filters: ArticleGroupNotificationsFilter): NotificationConnection! @join__field(graph: NOTIFICATION)
+}
+
+type ArticleGroupConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [ArticleGroup!]!
+}
+
+input ArticleGroupNotificationsFilter
+  @join__type(graph: NOTIFICATION)
+{
+  schedule: Int
+  type: String
+}
+
+input ArticleGroupQnasFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  parentId: ID
+  layerIndex: Int
+}
+
+type ArticleGroupReference
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  articleGroupId: ID!
+  articleId: ID!
+  quote: String
+  offset: Float
+  length: Float
+  locale: String!
+  isRepresentative: Boolean!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+  articleGroup: ArticleGroup!
+  article: Article!
+}
+
+type ArticleGroupReferenceConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [ArticleGroupReference!]!
+}
+
+input ArticleGroupReferencesFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  articleIds: [ID!]
+  articleGroupIds: [ID!]
+  articlePublisherCode: String
+}
+
+input ArticleGroupsFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  categoryIds: [ID!]
+  withUnPublished: Boolean
+  withExpired: Boolean
+  from: Timestamp
+  to: Timestamp
+  dataSet: String
+  isBreakingNews: Boolean
+  isFeatured: Boolean
+}
+
+input ArticlesFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+}
+
+input CategoriesFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  types: [String!]
+}
+
+"""Category"""
+type Category
+  @join__type(graph: CONTENT, key: "id", extension: true)
+  @join__type(graph: DISTRIBUTION, key: "id")
+{
+  id: ID!
+  slug: String! @join__field(graph: DISTRIBUTION)
+  name: String! @join__field(graph: DISTRIBUTION)
+  order: Float! @join__field(graph: DISTRIBUTION)
+  type: String! @join__field(graph: DISTRIBUTION)
+  parentId: ID @join__field(graph: DISTRIBUTION)
+  createdAt: Timestamp! @join__field(graph: DISTRIBUTION)
+  updatedAt: Timestamp! @join__field(graph: DISTRIBUTION)
+  deletedAt: Timestamp @join__field(graph: DISTRIBUTION)
+  parent: Category @join__field(graph: DISTRIBUTION)
+}
+
+type CategoryConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [Category!]!
+}
+
+input ConnectionArgs
+  @join__type(graph: DISTRIBUTION)
+  @join__type(graph: NOTIFICATION)
+{
+  start: Int = 0
+  limit: Int = 50
+  afterId: String
+}
+
+input CreateNotificationInput
+  @join__type(graph: NOTIFICATION)
+{
+  title: String!
+  description: String!
+  topic: String!
+  schedule: Int
+  deeplink: String!
+  articleGroupId: ID
+  type: String!
+}
+
+input CreatePublisherInput
+  @join__type(graph: DISTRIBUTION)
+{
+  name: String!
+  description: String!
+  url: String!
+  order: Int!
+  code: String!
+  avatar: MediaInput
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  CONTENT @join__graph(name: "content", url: "http://localhost:3003/graphql")
+  DISTRIBUTION @join__graph(name: "distribution", url: "http://localhost:3000/graphql")
+  NOTIFICATION @join__graph(name: "notification", url: "http://localhost:3002/graphql")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Media
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  url: String!
+  mimeType: String!
+  size: Int!
+  description: String
+  sourceUrl: String
+  width: Int!
+  height: Int!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+}
+
+input MediaInput
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID
+  sourceUrl: String
+  description: String
+}
+
+type Meta
+  @join__type(graph: DISTRIBUTION)
+  @join__type(graph: NOTIFICATION)
+{
+  count: Int!
+  start: Int!
+  limit: Int!
+  afterId: String
+}
+
+type Mutation
+  @join__type(graph: CONTENT)
+  @join__type(graph: DISTRIBUTION)
+  @join__type(graph: NOTIFICATION)
+{
+  updateAppConfig(input: UpdateAppConfigInput!): AppConfig! @join__field(graph: CONTENT)
+  createPublisher(input: CreatePublisherInput!): Publisher! @join__field(graph: DISTRIBUTION)
+  updatePublisher(idOrCode: ID!, input: UpdatePublisherInput!): Publisher! @join__field(graph: DISTRIBUTION)
+  updateArticleGroup(id: ID!, input: UpdateArticleGroupInput!): ArticleGroup! @join__field(graph: DISTRIBUTION)
+  removeArticleGroups(ids: [ID!]!, isHardDelete: Boolean = false): [ArticleGroup!]! @join__field(graph: DISTRIBUTION)
+  updateQna(id: ID!, input: UpdateQnaInput!): Qna! @join__field(graph: DISTRIBUTION)
+  removeQnas(ids: [ID!]!, isHardDelete: Boolean = false): [Qna!]! @join__field(graph: DISTRIBUTION)
+  updateArticleGroupReference(id: ID!, input: UpdateArticleGroupReferenceInput!): ArticleGroupReference! @join__field(graph: DISTRIBUTION)
+  removeArticleGroupReference(ids: [ID!]!, isHardDelete: Boolean = false): [ArticleGroupReference!]! @join__field(graph: DISTRIBUTION)
+  updateQnaReference(id: ID!, input: UpdateQnaReferenceInput!): QnaReference! @join__field(graph: DISTRIBUTION)
+  removeQnaReferences(ids: [ID!]!, isHardDelete: Boolean = false): [QnaReference!]! @join__field(graph: DISTRIBUTION)
+  createNotification(input: CreateNotificationInput!): Notification! @join__field(graph: NOTIFICATION)
+  updateNotification(id: ID!, input: UpdateNotificationInput!): Notification! @join__field(graph: NOTIFICATION)
+  removeNotifications(ids: [ID!]!, isHardDelete: Boolean = false): [Notification!]! @join__field(graph: NOTIFICATION)
+}
+
+type Notification
+  @join__type(graph: NOTIFICATION, key: "id")
+{
+  id: ID!
+  title: String!
+  description: String!
+  topic: String!
+  schedule: Timestamp
+  deeplink: String!
+  articleGroupId: ID
+  articleGroup: ArticleGroup
+  type: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+}
+
+type NotificationConnection
+  @join__type(graph: NOTIFICATION)
+{
+  meta: Meta!
+  result: [Notification!]!
+}
+
+input NotificationsFilter
+  @join__type(graph: NOTIFICATION)
+{
+  schedule: Int
+  type: String
+  articleGroupId: ID
+}
+
+"""Category"""
+type PlatformConfigEntity
+  @join__type(graph: CONTENT)
+{
+  minVersion: String!
+}
+
+type Publisher
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  name: String!
+  description: String
+  code: String
+  url: String
+  order: Int!
+  avatarMediaId: ID
+  avatar: Media
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+}
+
+type PublisherConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [Publisher!]!
+}
+
+input PublishersFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+}
+
+type Qna
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  slug: String!
+  question: String!
+  answer: String!
+  thumbnailMediaId: ID
+  thumbnail: Media
+  locale: String!
+  parentId: ID
+  articleGroupId: ID!
+  order: Int!
+  layerIndex: Int!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+  publishers: [Publisher!]!
+  articleGroup: ArticleGroup!
+  references: [QnaReference!]!
+  childrenCount: Int!
+  parent: Qna
+  children(connectionArgs: ConnectionArgs, filters: QnaChildrenFilter): QnaConnection!
+}
+
+input QnaChildrenFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  layerIndex: Int
+}
+
+type QnaConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [Qna!]!
+}
+
+type QnaReference
+  @join__type(graph: DISTRIBUTION)
+{
+  id: ID!
+  qnaId: ID!
+  articleId: ID!
+  quote: Int
+  offset: Int
+  length: Float
+  locale: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deletedAt: Timestamp
+  qna: Qna!
+  article: Article!
+}
+
+type QnaReferenceConnection
+  @join__type(graph: DISTRIBUTION)
+{
+  meta: Meta!
+  result: [QnaReference!]!
+}
+
+input QnaReferencesFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  articleIds: [ID!]
+  qnaIds: [ID!]
+  articlePublisherCode: String
+}
+
+input QnasFilter
+  @join__type(graph: DISTRIBUTION)
+{
+  ids: [ID!]
+  excludeIds: [ID!]
+  parentId: ID
+  articleGroupId: ID
+  layerIndex: Int
+}
+
+type Query
+  @join__type(graph: CONTENT)
+  @join__type(graph: DISTRIBUTION)
+  @join__type(graph: NOTIFICATION)
+{
+  appConfig: AppConfig! @join__field(graph: CONTENT)
+  publishers(connectionArgs: ConnectionArgs, filters: PublishersFilter): PublisherConnection! @join__field(graph: DISTRIBUTION)
+  publisher(idOrCode: ID!): Publisher @join__field(graph: DISTRIBUTION)
+  articleGroups(connectionArgs: ConnectionArgs, filters: ArticleGroupsFilter): ArticleGroupConnection! @join__field(graph: DISTRIBUTION)
+  articleGroup(id: ID!): ArticleGroup @join__field(graph: DISTRIBUTION)
+  articles(connectionArgs: ConnectionArgs, filters: ArticlesFilter): ArticleConnection! @join__field(graph: DISTRIBUTION)
+  article(id: ID!): Article @join__field(graph: DISTRIBUTION)
+  qnas(connectionArgs: ConnectionArgs, filters: QnasFilter): QnaConnection! @join__field(graph: DISTRIBUTION)
+  qna(id: ID!): Qna @join__field(graph: DISTRIBUTION)
+  categories(connectionArgs: ConnectionArgs, filters: CategoriesFilter): CategoryConnection! @join__field(graph: DISTRIBUTION)
+  category(id: ID!): Category @join__field(graph: DISTRIBUTION)
+  articleGroupReferences(connectionArgs: ConnectionArgs, filters: ArticleGroupReferencesFilter): ArticleGroupReferenceConnection! @join__field(graph: DISTRIBUTION)
+  articleGroupReference(id: ID!): ArticleGroupReference @join__field(graph: DISTRIBUTION)
+  qnaReferences(connectionArgs: ConnectionArgs, filters: QnaReferencesFilter): QnaReferenceConnection! @join__field(graph: DISTRIBUTION)
+  qnaReference(id: ID!): QnaReference @join__field(graph: DISTRIBUTION)
+  notifications(connectionArgs: ConnectionArgs, filters: NotificationsFilter): NotificationConnection! @join__field(graph: NOTIFICATION)
+  notification(id: ID!): Notification @join__field(graph: NOTIFICATION)
+}
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
+  @join__type(graph: CONTENT)
+  @join__type(graph: DISTRIBUTION)
+  @join__type(graph: NOTIFICATION)
+
+input UpdateAppConfigInput
+  @join__type(graph: CONTENT)
+{
+  ios: UpdatePlatformConfigInput
+  android: UpdatePlatformConfigInput
+  breakingNewsRootCategoryIds: [ID!]
+  arborRootCategoryIds: [ID!]
+}
+
+input UpdateArticleGroupInput
+  @join__type(graph: DISTRIBUTION)
+{
+  slug: String
+  shortTitle: String
+  title: String
+  summary: String
+  categoryIds: [ID!]
+  tags: [String!]
+  isBreakingNews: Boolean
+  isFeatured: Boolean
+  thumbnailMediaId: ID
+  dataSet: String
+  publishedAt: Timestamp
+  expiredAt: Timestamp
+}
+
+input UpdateArticleGroupReferenceInput
+  @join__type(graph: DISTRIBUTION)
+{
+  articleId: ID
+  quote: String
+  offset: Int
+  length: Int
+  locale: String
+  isRepresentative: Boolean
+}
+
+input UpdateNotificationInput
+  @join__type(graph: NOTIFICATION)
+{
+  title: String!
+  description: String!
+  topic: String!
+  schedule: Int
+  deeplink: String!
+  articleGroupId: ID
+  type: String!
+}
+
+input UpdatePlatformConfigInput
+  @join__type(graph: CONTENT)
+{
+  minVersion: String!
+}
+
+input UpdatePublisherInput
+  @join__type(graph: DISTRIBUTION)
+{
+  name: String
+  description: String
+  url: String
+  order: Float
+  code: String
+  avatar: MediaInput
+}
+
+input UpdateQnaInput
+  @join__type(graph: DISTRIBUTION)
+{
+  slug: String
+  question: String
+  answer: String
+  thumbnailMediaId: String
+  locale: String
+  parentId: ID
+  articleGroupId: ID
+}
+
+input UpdateQnaReferenceInput
+  @join__type(graph: DISTRIBUTION)
+{
+  articleId: ID
+  quote: String
+  offset: Int
+  length: Int
+  locale: String
+}

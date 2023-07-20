@@ -1,0 +1,44 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variables file
+.env
+
+# Optional npm cache directory
+.npm
+
+# NPM package setting
+.npmrc
+
+# Output of 'npm pack'
+*.tgz
+
+# Logs
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+
+# sonnar
+/.scannerwork 
+
+/dist
+/node_modules
+/coverage
+/.nyc_output
