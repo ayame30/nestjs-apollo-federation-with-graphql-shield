@@ -9,7 +9,7 @@ import { ApolloLoggingPlugin } from './apollo-logging.plugin';
 import { RemoteGraphQLDataSource } from '@apollo/gateway';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { ApolloGraphqlShieldPlugin } from './apollo-logging.plugin copy';
+import { ApolloGraphqlShieldPlugin } from './apollo-graphql-shield.plugin';
 
 const supergraphSdl = readFileSync(
   join(process.cwd(), './src/supergraph.graphql'),
